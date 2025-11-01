@@ -32,11 +32,12 @@ export default function Verify2FA() {
       return;
     }
     try {
-      const res = await fetch("http://localhost:5050/verify-2fa", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, code }),
-      });
+      const res = await fetch("https://dev-at-deakin.onrender.com/verify-2fa", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ email, code }),
+});
+
       const data = await res.json();
       if (data.success) {
         localStorage.setItem("2fa_verified", email);
