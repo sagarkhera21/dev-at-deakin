@@ -1,15 +1,16 @@
-// server.js
-import express from "express";
+
 import cors from "cors";
+import express from "express";
 import dotenv from "dotenv";
 import sgMail from "@sendgrid/mail";
 
 dotenv.config();
 const app = express();
 
-// ✅ FIX CORS properly
+// ✅ FIX CORS for deployed frontend
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "http://localhost:5173"); // React app origin
+  // Replace with your deployed frontend URL
+  res.header("Access-Control-Allow-Origin", "https://dev-deakins.netlify.app"); 
   res.header("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
   res.header("Access-Control-Allow-Headers", "Content-Type,Authorization");
   if (req.method === "OPTIONS") {
@@ -68,4 +69,6 @@ app.post("/verify-2fa", (req, res) => {
 });
 
 // ===== Start Server =====
-app.listen(PORT, () => console.log(`✅ Server running on http://localhost:${PORT}`));
+app.listen(PORT, () =>
+  console.log(`✅ Server running on port ${PORT}`)
+);
