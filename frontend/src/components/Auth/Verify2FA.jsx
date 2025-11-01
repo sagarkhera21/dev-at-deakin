@@ -55,11 +55,13 @@ export default function Verify2FA() {
 
   const handleResend = async () => {
     try {
-      const res = await fetch("http://localhost:5050/send-2fa", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
+  const res = await fetch("https://dev-at-deakin.onrender.com/send-2fa", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+
+  
       const data = await res.json();
       if (data.success) {
         setTimer(120);

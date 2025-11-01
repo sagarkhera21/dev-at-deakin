@@ -36,7 +36,7 @@ export default function Login() {
       await signInWithPopup(auth, googleProvider);
       const userEmail = auth.currentUser?.email;
       if (userEmail) {
-        await fetch("http://localhost:5050/send-2fa", {
+        await fetch("https://dev-at-deakin.onrender.com/send-2fa", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: userEmail }),
