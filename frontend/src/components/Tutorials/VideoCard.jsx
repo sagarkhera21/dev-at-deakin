@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from "react";
 import { ref, set, onValue, push, remove } from "firebase/database";
 import { db } from "../../firebase/config";
 import { useAuth } from "../../context/AuthContext";
 
-// Helper function for "time ago" display
+// Helper function to display "time ago" format
 function timeAgo(timestamp) {
   const diff = Math.floor((Date.now() - timestamp) / 1000);
   if (diff < 60) return `${diff}s ago`;
@@ -21,7 +20,7 @@ export default function VideoCard({ video }) {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
 
-  // Listen to ratings
+  // Listen to ratings changes in Firebase
   useEffect(() => {
     const ratingsRef = ref(db, `tutorials/${video.id}/ratings`);
     onValue(ratingsRef, (snap) => {
@@ -35,7 +34,7 @@ export default function VideoCard({ video }) {
     });
   }, [video.id, currentUser.uid]);
 
-  // Listen to comments
+  // Listen to comments changes in Firebase
   useEffect(() => {
     const commentsRef = ref(db, `tutorials/${video.id}/comments`);
     onValue(commentsRef, (snap) => {
@@ -47,12 +46,12 @@ export default function VideoCard({ video }) {
     });
   }, [video.id]);
 
-  // Handle rating
+  // Update user rating in Firebase
   const handleRating = (val) => {
     set(ref(db, `tutorials/${video.id}/ratings/${currentUser.uid}`), val);
   };
 
-  // Handle comment submit
+  // Submit a new comment to Firebase
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
     if (!newComment.trim()) return;
@@ -68,15 +67,18 @@ export default function VideoCard({ video }) {
     setNewComment("");
   };
 
+  // Delete a comment from Firebase
   const handleDeleteComment = (id) => {
     remove(ref(db, `tutorials/${video.id}/comments/${id}`));
   };
 
+  // Edit a comment in Firebase
   const handleEditComment = (id, text) => {
     const newText = prompt("Edit comment:", text);
     if (newText) set(ref(db, `tutorials/${video.id}/comments/${id}/text`), newText);
   };
 
+  // Reply to a comment in Firebase
   const handleReply = (id) => {
     const replyText = prompt("Reply:");
     if (!replyText) return;
@@ -88,14 +90,14 @@ export default function VideoCard({ video }) {
     push(ref(db, `tutorials/${video.id}/comments/${id}/replies`), replyData);
   };
 
-  // Handle views
+  // Increment view count when video is played
   const handleView = () => {
     const newViews = views + 1;
     setViews(newViews);
     set(ref(db, `tutorials/${video.id}/views`), newViews);
   };
 
-  //  Handle Delete Video
+  // Delete the video from Firebase
   const handleDeleteVideo = () => {
     const confirmDelete = window.confirm("Are you sure you want to delete this video?");
     if (!confirmDelete) return;
@@ -110,11 +112,9 @@ export default function VideoCard({ video }) {
 
   return (
     <div className="bg-white rounded-2xl shadow-md hover:shadow-2xl transition duration-300 overflow-hidden border border-gray-200">
-      {/* Title & Delete Button */}
+      {/* Title & Delete Button (only visible to owner) */}
       <div className="flex justify-between items-center p-5">
         <h2 className="text-2xl font-semibold text-gray-800">{video.title}</h2>
-
-        {/* Show delete button only for owner */}
         {currentUser?.email === video.uploadedBy && (
           <button
             onClick={handleDeleteVideo}
@@ -125,7 +125,7 @@ export default function VideoCard({ video }) {
         )}
       </div>
 
-      {/* Video Player */}
+      {/* Video Player with view tracking */}
       <video
         src={video.videoUrl}
         controls
@@ -133,7 +133,7 @@ export default function VideoCard({ video }) {
         className="w-full rounded-xl border border-gray-200 mb-3"
       ></video>
 
-      {/* Info */}
+      {/* Video info: uploader, views, average rating */}
       <div className="px-5">
         <p className="text-sm text-gray-600 mb-4">
           Uploaded by <span className="font-medium">{video.uploadedBy}</span> |{" "}
@@ -186,7 +186,7 @@ export default function VideoCard({ video }) {
                 : {c.text}
               </p>
 
-              {/* Action Buttons */}
+              {/* Action Buttons: Edit, Delete, Reply */}
               <div className="flex gap-3 text-xs mt-1">
                 {(c.user === currentUser.email ||
                   video.uploadedBy === currentUser.email) && (

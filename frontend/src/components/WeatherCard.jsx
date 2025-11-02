@@ -2,12 +2,13 @@ import React, { useState } from "react";
 
 export default function WeatherCard({ side = false }) {
   const [city, setCity] = useState("Rajpura"); // default city
-  const [weather, setWeather] = useState(null);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [weather, setWeather] = useState(null); // store fetched weather data
+  const [error, setError] = useState(""); // store error messages
+  const [loading, setLoading] = useState(false); // loading state for API call
 
-  const apiKey = import.meta.env.VITE_WEATHER_API_KEY;
+  const apiKey = import.meta.env.VITE_WEATHER_API_KEY; // OpenWeatherMap API key
 
+  // Function to fetch weather data from API
   const fetchWeather = async (cityName) => {
     if (!cityName) return;
     setLoading(true);
@@ -22,11 +23,11 @@ export default function WeatherCard({ side = false }) {
       if (!res.ok) throw new Error("City not found or API key invalid");
 
       const data = await res.json();
-      setWeather(data);
+      setWeather(data); // store fetched weather data
     } catch (err) {
-      setError(err.message);
+      setError(err.message); // display error if fetch fails
     } finally {
-      setLoading(false);
+      setLoading(false); // stop loading spinner
     }
   };
 
@@ -41,7 +42,7 @@ export default function WeatherCard({ side = false }) {
         side ? "w-48 text-sm" : "w-56"
       }`}
     >
-      {/* Input & Search for full version */}
+      {/* Input & Search for full version (not for side widget) */}
       {!side && (
         <div className="mb-3">
           <div className="flex gap-2">
@@ -62,18 +63,19 @@ export default function WeatherCard({ side = false }) {
         </div>
       )}
 
-      {/* Loading */}
+      {/* Loading state */}
       {loading && <p className="text-gray-500 text-sm">Loading...</p>}
 
-      {/* Error */}
+      {/* Error display */}
       {error && <p className="text-red-600 text-sm">{error}</p>}
 
-      {/* Weather Info */}
+      {/* Weather Info display */}
       {weather && (
         <div className="text-center text-gray-700">
           <p className="font-semibold">{weather.name}</p>
           <p className="text-lg font-bold">{weather.main.temp}°C</p>
           <p className="capitalize">{weather.weather[0].description}</p>
+          {/* Show humidity only for full version */}
           {!side && (
             <p className="text-xs text-gray-500">
               Humidity: {weather.main.humidity}%
@@ -82,6 +84,7 @@ export default function WeatherCard({ side = false }) {
         </div>
       )}
 
+      {/* Placeholder when no data is available */}
       {!weather && !loading && !error && (
         <p className="text-gray-500 text-sm">
           Enter a city to see weather

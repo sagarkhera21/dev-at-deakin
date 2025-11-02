@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import ChatRoom from "./ChatRoom";
 
 export default function RoomList() {
+  // State variables for rooms, form inputs, and active room
   const [rooms, setRooms] = useState([]);
   const [title, setTitle] = useState("");
   const [pin, setPin] = useState("");
@@ -13,15 +14,17 @@ export default function RoomList() {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
 
+  // Fetch all rooms from Firebase Realtime Database on mount
   useEffect(() => {
     const roomsRef = ref(db, "rooms");
     onValue(roomsRef, (snap) => {
       const val = snap.val() || {};
       const arr = Object.entries(val).map(([id, data]) => ({ id, ...data }));
-      setRooms(arr.reverse());
+      setRooms(arr.reverse()); // Show newest rooms at the top
     });
   }, []);
 
+  // Create a new chat room
   const createRoom = async (e) => {
     e.preventDefault();
     if (!title.trim() || pin.length !== 4)
@@ -38,11 +41,11 @@ export default function RoomList() {
 
     setTitle("");
     setPin("");
-    setActiveRoomId(newRef.key);
+    setActiveRoomId(newRef.key); // Automatically open the new room
   };
 
+  // Delete a room (owner or correct PIN required)
   const deleteRoom = async (room) => {
-    // Only owner or someone with correct PIN can delete
     if (currentUser.uid !== room.ownerUid) {
       const enteredPin = prompt("Enter the 4-digit PIN to delete this room:");
       if (enteredPin !== room.pin) {
@@ -54,18 +57,18 @@ export default function RoomList() {
     if (!window.confirm("Are you sure you want to delete this room?")) return;
 
     await remove(ref(db, `rooms/${room.id}`));
-    setActiveRoomId(null);
+    setActiveRoomId(null); // Reset active room if deleted
   };
 
   return (
     <div className="grid grid-cols-[320px_1fr] gap-6 min-h-screen bg-linear-to-br from-gray-100 to-gray-200 p-6">
-      {/* Sidebar */}
+      {/* Sidebar containing create room form and room list */}
       <aside className="bg-white shadow-lg rounded-2xl p-5 border border-gray-100">
         <h3 className="text-2xl font-bold mb-4 text-gray-800 text-center">
           💬 Chat Rooms
         </h3>
 
-        {/* Create Room Form */}
+        {/* Form to create a new room */}
         <form onSubmit={createRoom} className="flex flex-col gap-3 mb-5">
           <input
             className="border rounded-xl px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -85,7 +88,7 @@ export default function RoomList() {
           </button>
         </form>
 
-        {/* Room List */}
+        {/* List of existing rooms */}
         <ul className="space-y-2">
           {rooms.map((r) => (
             <li
@@ -93,7 +96,7 @@ export default function RoomList() {
               className="flex justify-between items-center bg-gray-50 hover:bg-indigo-50 border border-gray-200 p-3 rounded-xl transition"
             >
               <button
-                onClick={() => setActiveRoomId(r.id)}
+                onClick={() => setActiveRoomId(r.id)} // Open selected room
                 className="flex-1 text-left"
               >
                 <strong className="text-gray-800 text-lg">{r.title}</strong>
@@ -103,6 +106,7 @@ export default function RoomList() {
                 </div>
               </button>
 
+              {/* Delete button */}
               <button
                 onClick={() => deleteRoom(r)}
                 className="ml-3 text-red-500 hover:text-red-700 text-lg"
@@ -115,7 +119,7 @@ export default function RoomList() {
         </ul>
       </aside>
 
-      {/* Chat Section */}
+      {/* Chat section for the active room */}
       <section className="bg-white shadow-xl rounded-2xl p-6 border border-gray-100 flex flex-col">
         <button
           onClick={() => navigate("/dashboard")}
@@ -125,7 +129,7 @@ export default function RoomList() {
         </button>
 
         {activeRoomId ? (
-          <ChatRoom roomId={activeRoomId} />
+          <ChatRoom roomId={activeRoomId} /> // Render ChatRoom component
         ) : (
           <p className="text-gray-500 text-center mt-32 text-lg">
             Select or create a room to start chatting 💬

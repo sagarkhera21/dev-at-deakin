@@ -6,13 +6,15 @@ import { useNavigate } from "react-router-dom";
 export default function Logout({ className }) {
   const navigate = useNavigate();
 
+  // Function to handle user logout
   const handleLogout = async () => {
-    await signOut(auth);
-    localStorage.removeItem("2fa_verified");
+    await signOut(auth); // Firebase method to sign out the current user
+    localStorage.removeItem("2fa_verified"); // Clear stored 2FA session data
     localStorage.removeItem("2fa_email");
-    navigate("/login");
+    navigate("/login"); // Redirect to login page after logout
   };
 
+  // Logout button component with customizable styles
   return (
     <button
       onClick={handleLogout}

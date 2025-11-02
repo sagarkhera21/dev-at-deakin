@@ -1,23 +1,23 @@
 import React, { useRef, useState } from "react";
 
 export default function MessageInput({ onSend }) {
-  // Store the message text
+  // State to store the current message being typed
   const [text, setText] = useState("");
 
-  // Keep a reference to the input field for focus control
+  // Ref to keep input focused after sending a message
   const inputRef = useRef(null);
 
-  // Handle form submission
+  // Handle sending the message
   const submit = async (e) => {
     e?.preventDefault();
 
-    // Ignore empty messages
+    // Do not send empty messages
     if (!text.trim()) return;
 
-    // Trigger parent function to send the message
+    // Call the parent component function to send the message
     await onSend(text);
 
-    // Clear input and return focus for next message
+    // Clear input and focus for next message
     setText("");
     inputRef.current?.focus();
   };
@@ -27,7 +27,7 @@ export default function MessageInput({ onSend }) {
       onSubmit={submit}
       className="flex gap-2 border-t border-gray-200 pt-3 mt-4"
     >
-      {/* Message input field */}
+      {/* Input field for typing messages */}
       <input
         ref={inputRef}
         value={text}
@@ -36,7 +36,7 @@ export default function MessageInput({ onSend }) {
         className="flex-1 px-4 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
       />
 
-      {/* Send button */}
+      {/* Button to submit/send message */}
       <button
         type="submit"
         className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-xl text-sm font-medium transition"
